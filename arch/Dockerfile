@@ -62,6 +62,14 @@ USER root
 RUN pacman -S --noconfirm git
 
 ###########################################################################
+# GCC
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm gcc pkgconf libpng libjpeg
+
+###########################################################################
 # ZSH
 ###########################################################################
 
@@ -120,57 +128,21 @@ COPY nginx/logrotate /etc/logrotate.d/
 # PHP
 ###########################################################################
 
-# USER root
+USER root
 
-# RUN pacman -S --noconfirm base-devel re2c
+RUN git clone git://github.com/phpenv/phpenv.git ~/.phpenv
 
-# RUN wget https://www.php.net/distributions/php-7.4.27.tar.gz
+RUN echo 'export PATH="$HOME/.phpenv/bin:$PATH"' >> ~/.bash_profile && \
+    echo 'export PATH="$HOME/.phpenv/bin:$PATH"' >> ~/.zshrc
 
-# RUN tar -xf php-7.4.27.tar.gz
+RUN echo 'eval "$(phpenv init -)"' >> ~/.bash_profile && \
+    echo 'eval "$(phpenv init -)"' >> ~/.zshrc
 
-# RUN ./php-7.4.27/configure \
-#     --prefix=/usr/local/php/php7.4 \
-#     # --with-zlib-dir \
-#     # --with-freetype-dir \
-#     # --enable-mbstring \
-#     # --with-libxml-dir=/usr \
-#     # --enable-soap \
-#     # --enable-calendar \
-#     # --with-curl \
-#     # --with-mcrypt \
-#     # --with-zlib \
-#     # --with-gd \
-#     # --disable-rpath \
-#     # --enable-inline-optimization \
-#     # --with-bz2 \
-#     # --with-zlib \
-#     # --enable-sockets \
-#     # --enable-sysvsem \
-#     # --enable-sysvshm \
-#     # --enable-pcntl \
-#     # --enable-mbregex \
-#     # --with-mhash \
-#     # --enable-zip \
-#     # --with-pcre-regex \
-#     # --with-mysql \
-#     # --with-pdo-mysql \
-#     # --with-mysqli \
-#     # --with-jpeg-dir=/usr \
-#     # --with-png-dir=/usr \
-#     # --enable-gd-native-ttf \
-#     --with-openssl \
-#     --with-fpm-user=http \
-#     --with-fpm-group=http \
-#     --with-gettext \
-#     --enable-fpm
+RUN $HOME/.phpenv/bin/phpenv rehash
 
-# RUN make
+RUN git clone https://github.com/php-build/php-build $($HOME/.phpenv/bin/phpenv root)/plugins/php-build
 
-# RUN make install
-
-# RUN rm php-7.4.27.tar.gz
-
-# RUN rm -rf php-7.4
+RUN $HOME/.phpenv/bin/phpenv install 7.4.27
 
 # RUN pacman -S --noconfirm composer
 
