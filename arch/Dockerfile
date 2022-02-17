@@ -46,6 +46,14 @@ USER root
 RUN pacman -S --noconfirm wget
 
 ###########################################################################
+# Gzip
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm gzip
+
+###########################################################################
 # GIT
 ###########################################################################
 
@@ -113,6 +121,56 @@ COPY nginx/logrotate /etc/logrotate.d/
 ###########################################################################
 
 # USER root
+
+# RUN pacman -S --noconfirm base-devel re2c
+
+# RUN wget https://www.php.net/distributions/php-7.4.27.tar.gz
+
+# RUN tar -xf php-7.4.27.tar.gz
+
+# RUN ./php-7.4.27/configure \
+#     --prefix=/usr/local/php/php7.4 \
+#     # --with-zlib-dir \
+#     # --with-freetype-dir \
+#     # --enable-mbstring \
+#     # --with-libxml-dir=/usr \
+#     # --enable-soap \
+#     # --enable-calendar \
+#     # --with-curl \
+#     # --with-mcrypt \
+#     # --with-zlib \
+#     # --with-gd \
+#     # --disable-rpath \
+#     # --enable-inline-optimization \
+#     # --with-bz2 \
+#     # --with-zlib \
+#     # --enable-sockets \
+#     # --enable-sysvsem \
+#     # --enable-sysvshm \
+#     # --enable-pcntl \
+#     # --enable-mbregex \
+#     # --with-mhash \
+#     # --enable-zip \
+#     # --with-pcre-regex \
+#     # --with-mysql \
+#     # --with-pdo-mysql \
+#     # --with-mysqli \
+#     # --with-jpeg-dir=/usr \
+#     # --with-png-dir=/usr \
+#     # --enable-gd-native-ttf \
+#     --with-openssl \
+#     --with-fpm-user=http \
+#     --with-fpm-group=http \
+#     --with-gettext \
+#     --enable-fpm
+
+# RUN make
+
+# RUN make install
+
+# RUN rm php-7.4.27.tar.gz
+
+# RUN rm -rf php-7.4
 
 # RUN pacman -S --noconfirm composer
 
