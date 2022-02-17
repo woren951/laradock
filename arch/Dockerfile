@@ -1,8 +1,8 @@
-#
+###########################################################################
 #--------------------------------------------------------------------------
 # Image Setup
 #--------------------------------------------------------------------------
-#
+###########################################################################
 
 FROM archlinux:base
 
@@ -38,36 +38,20 @@ USER root
 RUN pacman -S --noconfirm vi
 
 ###########################################################################
+# WGET
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm wget
+
+###########################################################################
 # GIT
 ###########################################################################
 
 USER root
 
 RUN pacman -S --noconfirm git
-
-###########################################################################
-# ZSH User Aliases
-###########################################################################
-
-USER root
-
-COPY ./aliases.sh /root/aliases.sh
-COPY ./aliases.sh /home/laradock/aliases.sh
-
-RUN sed -i 's/\r//' /root/aliases.sh && \
-    sed -i 's/\r//' /home/laradock/aliases.sh && \
-    chown laradock:laradock /home/laradock/aliases.sh && \
-    echo "" >> ~/.zshrc && \
-    echo "# Load Custom Aliases" >> ~/.zshrc && \
-    echo "source ~/aliases.sh" >> ~/.zshrc && \
-    echo "" >> ~/.zshrc
-
-USER laradock
-
-RUN echo "" >> ~/.zshrc && \
-    echo "# Load Custom Aliases" >> ~/.zshrc && \
-    echo "source ~/aliases.sh" >> ~/.zshrc && \
-    echo "" >> ~/.zshrc
 
 ###########################################################################
 # ZSH
@@ -77,26 +61,9 @@ USER root
 
 RUN pacman -S --noconfirm zsh
 
-RUN ls /home/laradock
+RUN wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh
 
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh) --keep-zshrc" && \
-    sed -i -r 's/^plugins=\(.*?\)$/plugins=(laravel, nvm, yarn, git-flow, git)/' /home/laradock/.zshrc && \
-    echo '\n\
-bindkey "^[OB" down-line-or-search\n\
-bindkey "^[OC" forward-char\n\
-bindkey "^[OD" backward-char\n\
-bindkey "^[OF" end-of-line\n\
-bindkey "^[OH" beginning-of-line\n\
-bindkey "^[[1~" beginning-of-line\n\
-bindkey "^[[3~" delete-char\n\
-bindkey "^[[4~" end-of-line\n\
-bindkey "^[[5~" up-line-or-history\n\
-bindkey "^[[6~" down-line-or-history\n\
-bindkey "^?" backward-delete-char\n' >> /home/laradock/.zshrc && \
-    echo "" >> /home/laradock/.zshrc && \
-    echo "# Load Custom Aliases" >> /home/laradock/.zshrc && \
-    echo "source /home/laradock/aliases.sh" >> /home/laradock/.zshrc && \
-    echo "" >> /home/laradock/.zshrc
+RUN sh install.sh
 
 ###########################################################################
 # Node
@@ -105,8 +72,6 @@ bindkey "^?" backward-delete-char\n' >> /home/laradock/.zshrc && \
 USER root
 
 RUN pacman -S --noconfirm npm yarn
-
-# RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
 ENV NVM_DIR /home/laradock/.nvm
 
@@ -130,12 +95,34 @@ RUN echo "" >> ~/.bashrc && \
 ENV PATH $PATH:/home/laradock/.node-bin
 
 ###########################################################################
-# PHP
+# Nginx
 ###########################################################################
 
 USER root
 
-RUN pacman -S --noconfirm composer
+RUN pacman -S --noconfirm nginx
+
+RUN touch /var/log/messages
+
+COPY nginx/nginx.conf /etc/nginx/
+
+COPY nginx/logrotate /etc/logrotate.d/
+
+###########################################################################
+# PHP
+###########################################################################
+
+# USER root
+
+# RUN pacman -S --noconfirm composer
+
+###########################################################################
+# Startup script
+###########################################################################
+
+ADD ./startup.sh /opt/startup.sh
+RUN sed -i 's/\r//g' /opt/startup.sh
+CMD ["/bin/bash", "/opt/startup.sh"]
 
 # Set default work directory
 WORKDIR /var/www
