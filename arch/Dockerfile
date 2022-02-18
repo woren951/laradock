@@ -181,6 +181,16 @@ RUN $HOME/.phpenv/bin/phpenv install 7.4.27 && \
     $HOME/.phpenv/bin/phpenv install 8.0.16 && \
     $HOME/.phpenv/bin/phpenv install 8.1.3
 
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9074/' $HOME/.phpenv/versions/7.4.27/etc/php-fpm.d/www.conf && \
+    sed -i 's/user = nobody/user = laradock/' $HOME/.phpenv/versions/7.4.27/etc/php-fpm.d/www.conf && \
+    sed -i 's/group = nobody/group = laradock/' $HOME/.phpenv/versions/7.4.27/etc/php-fpm.d/www.conf && \
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9080/' $HOME/.phpenv/versions/8.0.16/etc/php-fpm.d/www.conf && \
+    sed -i 's/user = nobody/user = laradock/' $HOME/.phpenv/versions/8.0.16/etc/php-fpm.d/www.conf && \
+    sed -i 's/group = nobody/group = laradock/' $HOME/.phpenv/versions/8.0.16/etc/php-fpm.d/www.conf && \
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9081/' $HOME/.phpenv/versions/8.1.3/etc/php-fpm.d/www.conf && \
+    sed -i 's/user = nobody/user = laradock/' $HOME/.phpenv/versions/8.1.3/etc/php-fpm.d/www.conf && \
+    sed -i 's/group = nobody/group = laradock/' $HOME/.phpenv/versions/8.1.3/etc/php-fpm.d/www.conf
+
 RUN $HOME/.phpenv/bin/phpenv rehash
 
 RUN $HOME/.phpenv/bin/phpenv global 8.1.3

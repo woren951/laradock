@@ -1766,12 +1766,16 @@ services:
         context: ./arch
       volumes:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
-        - docker-in-docker:/certs/client
-        - ./logs/nginx/:/var/log/nginx
-        - ./arch/nginx/sites:/etc/nginx/sites-available
+        - ${HOME}/.ssh:/home/laradock/.ssh
+        - ${HOME}/.ssh:/root/.ssh
         - ${LOCALHTTPS_PATH}:${LOCALHTTPS_PATH}
+        - ./arch/nginx/sites:/etc/nginx/sites-available
+        - ./logs/nginx/:/var/log/nginx
       environment:
         - DOCKER_HOST=tcp://docker-in-docker:2376
+      # ports:
+      #   - "80:80"
+      #   - "443:443"
       networks:
         - frontend
         - backend
