@@ -62,12 +62,36 @@ USER root
 RUN pacman -S --noconfirm git
 
 ###########################################################################
+# PYTHON
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm python
+
+###########################################################################
+# GO
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm go
+
+###########################################################################
 # GCC
 ###########################################################################
 
 USER root
 
-RUN pacman -S --noconfirm gcc pkgconf
+RUN pacman -S --noconfirm gcc
+
+###########################################################################
+# OTHER
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c tidy
 
 ###########################################################################
 # VIRTUAL:WORLD
@@ -75,7 +99,7 @@ RUN pacman -S --noconfirm gcc pkgconf
 
 USER root
 
-RUN pacman -S --noconfirm oniguruma libpng libjpeg libxslt libzip libmcrypt tidy diffutils make autoconf bison re2c
+RUN pacman -S --noconfirm libpng libjpeg libxslt libzip libmcrypt
 
 ###########################################################################
 # ZSH
@@ -90,7 +114,7 @@ RUN wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.
 RUN sh install.sh
 
 ###########################################################################
-# Node
+# NODE
 ###########################################################################
 
 USER root
@@ -119,7 +143,7 @@ RUN echo "" >> ~/.bashrc && \
 ENV PATH $PATH:/home/laradock/.node-bin
 
 ###########################################################################
-# Nginx
+# NGINX
 ###########################################################################
 
 USER root
