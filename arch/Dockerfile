@@ -46,7 +46,7 @@ USER root
 RUN pacman -S --noconfirm wget
 
 ###########################################################################
-# Gzip
+# GZIP
 ###########################################################################
 
 USER root
@@ -67,7 +67,15 @@ RUN pacman -S --noconfirm git
 
 USER root
 
-RUN pacman -S --noconfirm gcc pkgconf libpng libjpeg
+RUN pacman -S --noconfirm gcc pkgconf
+
+###########################################################################
+# VIRTUAL:WORLD
+###########################################################################
+
+USER root
+
+RUN pacman -S --noconfirm oniguruma libpng libjpeg libxslt libzip libmcrypt tidy diffutils make autoconf bison re2c
 
 ###########################################################################
 # ZSH
@@ -138,13 +146,22 @@ RUN echo 'export PATH="$HOME/.phpenv/bin:$PATH"' >> ~/.bash_profile && \
 RUN echo 'eval "$(phpenv init -)"' >> ~/.bash_profile && \
     echo 'eval "$(phpenv init -)"' >> ~/.zshrc
 
-RUN $HOME/.phpenv/bin/phpenv rehash
-
 RUN git clone https://github.com/php-build/php-build $($HOME/.phpenv/bin/phpenv root)/plugins/php-build
 
-RUN $HOME/.phpenv/bin/phpenv install 7.4.27
+# RUN export CXX="g++ -DTRUE=1 -DFALSE=0"
+# RUN export  CC="gcc -DTRUE=1 -DFALSE=0"
 
-# RUN pacman -S --noconfirm composer
+# RUN $HOME/.phpenv/bin/phpenv install 7.1.27 && \
+# RUN $HOME/.phpenv/bin/phpenv install 7.3.4 && \
+RUN $HOME/.phpenv/bin/phpenv install 7.4.27 && \
+    $HOME/.phpenv/bin/phpenv install 8.0.16 && \
+    $HOME/.phpenv/bin/phpenv install 8.1.3
+
+RUN $HOME/.phpenv/bin/phpenv rehash
+
+RUN $HOME/.phpenv/bin/phpenv global 8.1.3
+
+RUN pacman -S --noconfirm composer
 
 ###########################################################################
 # Startup script
