@@ -1768,7 +1768,6 @@ services:
         - ${APP_CODE_PATH_HOST}:${APP_CODE_PATH_CONTAINER}${APP_CODE_CONTAINER_FLAG}
         - ${HOME}/.ssh:/home/laradock/.ssh
         - ${HOME}/.ssh:/root/.ssh
-        - ${LOCALHTTPS_PATH}:${LOCALHTTPS_PATH}
         - ./arch/nginx/sites:/etc/nginx/sites-available
         - ./logs/nginx/:/var/log/nginx
       environment:

@@ -113,6 +113,10 @@ RUN wget https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.
 
 RUN sh install.sh
 
+USER laradock
+
+RUN sh install.sh
+
 ###########################################################################
 # NODE
 ###########################################################################
