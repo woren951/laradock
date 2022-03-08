@@ -15,19 +15,7 @@ RUN pacman-key --init
 # Update packman database and dependencies
 RUN pacman -Syyu --noconfirm
 
-###########################################################################
-# Non-root user
-###########################################################################
-
-# Add a non-root user to prevent files being created with root permissions on host machine.
-ARG PUID=1000
-ENV PUID ${PUID}
-ARG PGID=1000
-ENV PGID ${PGID}
-
-RUN groupadd -g ${PGID} laradock && \
-  useradd -l -u ${PUID} -g laradock -m laradock && \
-  usermod -p "*" laradock -s /bin/bash
+RUN pacman -S --needed --noconfirm base-devel
 
 ###########################################################################
 # VI
@@ -77,13 +65,13 @@ USER root
 
 RUN pacman -S --noconfirm go
 
-###########################################################################
-# GCC
-###########################################################################
+# ###########################################################################
+# # GCC
+# ###########################################################################
 
-USER root
+# USER root
 
-RUN pacman -S --noconfirm gcc
+# RUN pacman -S --noconfirm gcc
 
 ###########################################################################
 # OTHER
@@ -91,7 +79,8 @@ RUN pacman -S --noconfirm gcc
 
 USER root
 
-RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c tidy
+# RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c tidy
+RUN pacman -S --noconfirm re2c
 
 ###########################################################################
 # VIRTUAL:WORLD
@@ -99,7 +88,19 @@ RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c t
 
 USER root
 
-RUN pacman -S --noconfirm libpng libjpeg libxslt libzip libmcrypt
+RUN pacman -S --noconfirm libpng libjpeg gd oniguruma libxslt libzip libmcrypt
+
+###########################################################################
+# Non-root user
+###########################################################################
+
+USER root
+
+ADD add-aur.sh /root
+
+RUN bash /root/add-aur.sh "laradock" "yay"
+
+RUN yay -Syu --timeupdate
 
 ###########################################################################
 # ZSH
@@ -118,33 +119,45 @@ USER laradock
 RUN sh install.sh
 
 ###########################################################################
+# ASDF
+###########################################################################
+
+USER laradock
+
+RUN yay -S asdf-vm
+
+USER root
+
+RUN echo "" >> ~/.bash_profile && \
+    echo '# asdf' >> ~/.bash_profile && \
+    echo 'source /opt/asdf-vm/asdf.sh' >> ~/.bash_profile
+
+RUN echo "" >> ~/.zshrc && \
+    echo '# asdf' >> ~/.zshrc && \
+    echo 'source /opt/asdf-vm/asdf.sh' >> ~/.zshrc
+
+ENV PATH="/opt/asdf-vm/bin:$PATH"
+
+###########################################################################
 # NODE
 ###########################################################################
 
 USER root
 
-RUN pacman -S --noconfirm npm yarn
+RUN asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
-ENV NVM_DIR /home/laradock/.nvm
+RUN asdf install nodejs 10.24.1 12.22.10 14.19.0 16.14.0
 
-RUN mkdir -p $NVM_DIR && \
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash \
-        && . $NVM_DIR/nvm.sh \
-        && nvm install 10 \
-        && nvm install 12 \
-        && nvm install 14 \
-        && nvm install 16 \
-        && nvm use 16
+###########################################################################
+# PHP
+###########################################################################
 
-RUN echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="$HOME/.nvm"' >> ~/.bashrc && \
-    echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
+USER root
 
-RUN echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="/home/laradock/.nvm"' >> ~/.bashrc && \
-    echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc
+RUN asdf plugin-add php https://github.com/asdf-community/asdf-php.git
 
-ENV PATH $PATH:/home/laradock/.node-bin
+# RUN asdf install php 7.0.33 7.1.33 7.4.28 8.0.16 8.1.3
+# RUN asdf install php 8.1.3
 
 ###########################################################################
 # NGINX
@@ -159,47 +172,6 @@ RUN touch /var/log/messages
 COPY nginx/nginx.conf /etc/nginx/
 
 COPY nginx/logrotate /etc/logrotate.d/
-
-###########################################################################
-# PHP
-###########################################################################
-
-USER root
-
-RUN git clone git://github.com/phpenv/phpenv.git ~/.phpenv
-
-RUN echo 'export PATH="$HOME/.phpenv/bin:$PATH"' >> ~/.bash_profile && \
-    echo 'export PATH="$HOME/.phpenv/bin:$PATH"' >> ~/.zshrc
-
-RUN echo 'eval "$(phpenv init -)"' >> ~/.bash_profile && \
-    echo 'eval "$(phpenv init -)"' >> ~/.zshrc
-
-RUN git clone https://github.com/php-build/php-build $($HOME/.phpenv/bin/phpenv root)/plugins/php-build
-
-# RUN export CXX="g++ -DTRUE=1 -DFALSE=0"
-# RUN export  CC="gcc -DTRUE=1 -DFALSE=0"
-
-# RUN $HOME/.phpenv/bin/phpenv install 7.1.27 && \
-# RUN $HOME/.phpenv/bin/phpenv install 7.3.4 && \
-RUN $HOME/.phpenv/bin/phpenv install 7.4.27 && \
-    $HOME/.phpenv/bin/phpenv install 8.0.16 && \
-    $HOME/.phpenv/bin/phpenv install 8.1.3
-
-RUN sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9074/' $HOME/.phpenv/versions/7.4.27/etc/php-fpm.d/www.conf && \
-    sed -i 's/user = nobody/user = laradock/' $HOME/.phpenv/versions/7.4.27/etc/php-fpm.d/www.conf && \
-    sed -i 's/group = nobody/group = laradock/' $HOME/.phpenv/versions/7.4.27/etc/php-fpm.d/www.conf && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9080/' $HOME/.phpenv/versions/8.0.16/etc/php-fpm.d/www.conf && \
-    sed -i 's/user = nobody/user = laradock/' $HOME/.phpenv/versions/8.0.16/etc/php-fpm.d/www.conf && \
-    sed -i 's/group = nobody/group = laradock/' $HOME/.phpenv/versions/8.0.16/etc/php-fpm.d/www.conf && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9081/' $HOME/.phpenv/versions/8.1.3/etc/php-fpm.d/www.conf && \
-    sed -i 's/user = nobody/user = laradock/' $HOME/.phpenv/versions/8.1.3/etc/php-fpm.d/www.conf && \
-    sed -i 's/group = nobody/group = laradock/' $HOME/.phpenv/versions/8.1.3/etc/php-fpm.d/www.conf
-
-RUN $HOME/.phpenv/bin/phpenv rehash
-
-RUN $HOME/.phpenv/bin/phpenv global 8.1.3
-
-RUN pacman -S --noconfirm composer
 
 ###########################################################################
 # Startup script

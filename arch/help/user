@@ -1,0 +1,13 @@
+###########################################################################
+# Non-root user
+###########################################################################
+
+# Add a non-root user to prevent files being created with root permissions on host machine.
+ARG PUID=1000
+ENV PUID ${PUID}
+ARG PGID=1000
+ENV PGID ${PGID}
+
+RUN groupadd -g ${PGID} laradock && \
+    useradd -l -u ${PUID} -g laradock -m laradock && \
+    usermod -p "*" laradock -s /bin/bash
