@@ -79,8 +79,7 @@ RUN pacman -S --noconfirm go
 
 USER root
 
-# RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c tidy
-RUN pacman -S --noconfirm re2c
+RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c tidy postgresql-libs
 
 ###########################################################################
 # VIRTUAL:WORLD
@@ -88,7 +87,7 @@ RUN pacman -S --noconfirm re2c
 
 USER root
 
-RUN pacman -S --noconfirm libpng libjpeg gd oniguruma libxslt libzip libmcrypt
+RUN pacman -S --noconfirm libpng libjpeg gd libxslt libzip libmcrypt
 
 ###########################################################################
 # Non-root user
@@ -146,7 +145,10 @@ USER root
 
 RUN asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
 
-RUN asdf install nodejs 10.24.1 12.22.10 14.19.0 16.14.0
+RUN asdf install nodejs 10.24.1 && \
+    asdf install nodejs 12.22.10 && \
+    asdf install nodejs 14.19.0 && \
+    asdf install nodejs 16.14.0
 
 ###########################################################################
 # PHP
@@ -156,8 +158,27 @@ USER root
 
 RUN asdf plugin-add php https://github.com/asdf-community/asdf-php.git
 
-# RUN asdf install php 7.0.33 7.1.33 7.4.28 8.0.16 8.1.3
-# RUN asdf install php 8.1.3
+RUN asdf install php 7.4.28 && \
+    asdf install php 8.0.16 && \
+    asdf install php 8.1.3
+
+RUN cp $HOME/.asdf/installs/php/7.4.28/php-fpm.conf.default $HOME/.asdf/installs/php/7.4.28/php-fpm.conf && \
+    cp $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf && \
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9074/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default && \
+    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default && \
+    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default
+
+RUN cp $HOME/.asdf/installs/php/8.0.16/php-fpm.conf.default $HOME/.asdf/installs/php/8.0.16/php-fpm.conf && \
+    cp $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf && \
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9080/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default && \
+    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default && \
+    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default
+
+RUN cp $HOME/.asdf/installs/php/8.1.3/php-fpm.conf.default $HOME/.asdf/installs/php/8.1.3/php-fpm.conf && \
+    cp $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf && \
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9081/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default && \
+    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default && \
+    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default
 
 ###########################################################################
 # NGINX
