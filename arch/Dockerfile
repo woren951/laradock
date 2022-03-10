@@ -18,6 +18,21 @@ RUN pacman -Syyu --noconfirm
 RUN pacman -S --needed --noconfirm base-devel
 
 ###########################################################################
+# LOCALES
+###########################################################################
+
+USER root
+
+COPY locales /usr/share/i18n/locales
+
+RUN echo 'de_DE.UTF-8 UTF-8' >> /etc/locale.gen && \
+    echo 'fr_FR.UTF-8 UTF-8' >> /etc/locale.gen && \
+    echo 'ru_RU.UTF-8 UTF-8' >> /etc/locale.gen && \
+    echo 'uk_UA.UTF-8 UTF-8' >> /etc/locale.gen
+
+RUN locale-gen
+
+###########################################################################
 # VI
 ###########################################################################
 
@@ -87,7 +102,7 @@ RUN pacman -S --noconfirm pkgconf oniguruma diffutils make autoconf bison re2c t
 
 USER root
 
-RUN pacman -S --noconfirm libpng libjpeg gd libxslt libzip libmcrypt
+RUN pacman -S --noconfirm libpng libjpeg gd imagemagick libxslt libzip libmcrypt
 
 ###########################################################################
 # Non-root user
@@ -97,7 +112,7 @@ USER root
 
 ADD add-aur.sh /root
 
-RUN bash /root/add-aur.sh "laradock" "yay"
+RUN bash /root/add-aur.sh 'laradock' 'yay'
 
 RUN yay -Syu --timeupdate
 
@@ -150,6 +165,8 @@ RUN asdf install nodejs 10.24.1 && \
     asdf install nodejs 14.19.0 && \
     asdf install nodejs 16.14.0
 
+RUN asdf global nodejs 16.14.0
+
 ###########################################################################
 # PHP
 ###########################################################################
@@ -158,27 +175,45 @@ USER root
 
 RUN asdf plugin-add php https://github.com/asdf-community/asdf-php.git
 
-RUN asdf install php 7.4.28 && \
-    asdf install php 8.0.16 && \
-    asdf install php 8.1.3
+# ENV CXX="g++ -DTRUE=1 -DFALSE=0"
+# ENV CC="gcc -DTRUE=1 -DFALSE=0"
+
+# ENV CFLAGS=-DU_DEFINE_FALSE_AND_TRUE=1
+# ENV CXXFLAGS=-DU_DEFINE_FALSE_AND_TRUE=1
+
+# RUN asdf install php 7.1.33
+
+# RUN cp $HOME/.asdf/installs/php/7.1.33/php-fpm.conf.default $HOME/.asdf/installs/php/7.1.33/php-fpm.conf && \
+#     cp $HOME/.asdf/installs/php/7.1.33/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/7.1.33/php-fpm.d/www.conf && \
+#     sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9071/' $HOME/.asdf/installs/php/7.1.33/php-fpm.d/www.conf && \
+#     sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/7.1.33/php-fpm.d/www.conf && \
+#     sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/7.1.33/php-fpm.d/www.conf
+
+RUN asdf install php 7.4.28
 
 RUN cp $HOME/.asdf/installs/php/7.4.28/php-fpm.conf.default $HOME/.asdf/installs/php/7.4.28/php-fpm.conf && \
     cp $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9074/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default && \
-    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default && \
-    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf.default
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9074/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf && \
+    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf && \
+    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/7.4.28/php-fpm.d/www.conf
+
+RUN asdf install php 8.0.16
 
 RUN cp $HOME/.asdf/installs/php/8.0.16/php-fpm.conf.default $HOME/.asdf/installs/php/8.0.16/php-fpm.conf && \
     cp $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9080/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default && \
-    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default && \
-    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf.default
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9080/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf && \
+    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf && \
+    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/8.0.16/php-fpm.d/www.conf
+
+RUN asdf install php 8.1.3
 
 RUN cp $HOME/.asdf/installs/php/8.1.3/php-fpm.conf.default $HOME/.asdf/installs/php/8.1.3/php-fpm.conf && \
     cp $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf && \
-    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9081/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default && \
-    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default && \
-    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf.default
+    sed -i 's/listen = 127.0.0.1:9000/listen = 127.0.0.1:9081/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf && \
+    sed -i 's/user = www-data/user = laradock/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf && \
+    sed -i 's/group = www-data/group = laradock/' $HOME/.asdf/installs/php/8.1.3/php-fpm.d/www.conf
+
+RUN asdf global php 8.1.3
 
 ###########################################################################
 # NGINX
