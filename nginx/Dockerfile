@@ -31,7 +31,7 @@ RUN touch /var/log/messages
 COPY logrotate/nginx /etc/logrotate.d/
 
 # Set upstream conf and remove the default conf
-RUN echo "upstream php-upstream-81 { server php-fpm-81:9000; } php-upstream-80 { server php-fpm-80:9000; } upstream php-upstream-74 { server php-fpm-74:9000; } upstream php-upstream-73 { server php-fpm-73:9000; }  upstream php-upstream-72 { server php-fpm-72:9000; } upstream php-upstream-71 { server php-fpm-71:9000; }" > /etc/nginx/conf.d/upstream.conf \
+RUN echo "upstream upstream php-upstream-71 { server php-fpm-71:9000; }" > /etc/nginx/conf.d/upstream.conf \
     && rm /etc/nginx/conf.d/default.conf
 
 ADD ./startup.sh /opt/startup.sh
