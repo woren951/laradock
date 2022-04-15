@@ -345,11 +345,6 @@ services:
         - "${NGINX_HOST_HTTP_PORT}:80"
         - "${NGINX_HOST_HTTPS_PORT}:443"
       depends_on:
-        - php-fpm-81
-        - php-fpm-80
-        - php-fpm-74
-        - php-fpm-73
-        - php-fpm-72
         - php-fpm-71
       networks:
         - frontend
@@ -464,8 +459,6 @@ services:
       ports:
         - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
         - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
-      depends_on:
-        - php-fpm-74
       networks:
         - frontend
         - backend
@@ -493,8 +486,6 @@ services:
       ports:
         - "${ELASTICSEARCH_HOST_HTTP_PORT}:9200"
         - "${ELASTICSEARCH_HOST_TRANSPORT_PORT}:9300"
-      depends_on:
-        - php-fpm-74
       networks:
         - frontend
         - backend
